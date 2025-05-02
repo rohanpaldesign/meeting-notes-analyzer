@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Meeting Notes Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Search Results</h1>
+        <p>Query: "{{ query }}"</p>
+        
+        <a href="/" class="back-button">Back to Home</a>
+        
+        <div class="results-container">
+            {% if results %}
+                {% for result in results %}
+                    <div class="result-card">
+                        <h2>{{ result.title }}</h2>
+                        <p><strong>Date:</strong> {{ result.date }}</p>
+                        <p><strong>Participants:</strong> {{ ', '.join(result.participants) }}</p>
+                        <p><strong>Summary:</strong> {{ result.summary }}</p>
+                        <details>
+                            <summary>View Content</summary>
+                            <div class="meeting-content">
+                                <pre>{{ result.content }}</pre>
+                            </div>
+                        </details>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No results found for "{{ query }}"</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

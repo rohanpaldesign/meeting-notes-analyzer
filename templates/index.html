@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Notes Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Meeting Notes Analyzer</h1>
+        
+        <div class="upload-section">
+            <h2>Upload Meeting Notes</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="meeting_notes" accept=".txt,.md">
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+        
+        <div class="search-section">
+            <h2>Search Meeting Notes</h2>
+            <form action="/search" method="post">
+                <input type="text" name="query" placeholder="Search query...">
+                <select name="search_type">
+                    <option value="hybrid">Hybrid Search</option>
+                    <option value="vector">Semantic Search</option>
+                    <option value="text">Text Search</option>
+                </select>
+                <button type="submit">Search</button>
+            </form>
+        </div>
+        
+        <div class="analyze-section">
+            <h2>Analyze Meeting Notes</h2>
+            <div class="analysis-options">
+                <div class="option">
+                    <h3>Extract Action Items</h3>
+                    <form id="action-items-form">
+                        <input type="text" name="query" placeholder="Enter meeting topic or keywords...">
+                        <button type="submit">Extract</button>
+                    </form>
+                    <div id="action-items-result" class="result-box"></div>
+                </div>
+                
+                <div class="option">
+                    <h3>Generate Summary</h3>
+                    <form id="summary-form">
+                        <input type="text" name="query" placeholder="Enter meeting topic or keywords...">
+                        <button type="submit">Summarize</button>
+                    </form>
+                    <div id="summary-result" class="result-box"></div>
+                </div>
+                
+                <div class="option">
+                    <h3>Ask About Meetings</h3>
+                    <form id="ask-form">
+                        <input type="text" name="question" placeholder="Ask a question about meetings...">
+                        <button type="submit">Ask</button>
+                    </form>
+                    <div id="ask-result" class="result-box"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('action-items-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const query = this.querySelector('input[name="query"]').value;
+            const resultBox = document.getElementById('action-items-result');
+            resultBox.innerHTML = "Processing...";
+            
+            try {
+                const response = await fetch('/action_items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `query=${encodeURIComponent(query)}`
+                });
+                const result = await response.json();
+                
+                if (result.generated) {
+                    resultBox.innerHTML = result.generated;
+                } else if (result.error) {
+                    resultBox.innerHTML = `Error: ${result.error}`;
+                } else {
+                    resultBox.innerHTML = "No action items found or unexpected response format.";
+                    console.log("Unexpected response format:", result);
+                }
+            } catch (error) {
+                resultBox.innerHTML = `Error: ${error.message}`;
+                console.error(error);
+            }
+        });
+        
+        document.getElementById('summary-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const query = this.querySelector('input[name="query"]').value;
+            const resultBox = document.getElementById('summary-result');
+            resultBox.innerHTML = "Processing...";
+            
+            try {
+                const response = await fetch('/summary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `query=${encodeURIComponent(query)}`
+                });
+                const result = await response.json();
+                
+                if (result.generated) {
+                    resultBox.innerHTML = result.generated;
+                } else if (result.error) {
+                    resultBox.innerHTML = `Error: ${result.error}`;
+                } else {
+                    resultBox.innerHTML = "No summary generated or unexpected response format.";
+                    console.log("Unexpected response format:", result);
+                }
+            } catch (error) {
+                resultBox.innerHTML = `Error: ${error.message}`;
+                console.error(error);
+            }
+        });
+        
+        document.getElementById('ask-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const question = this.querySelector('input[name="question"]').value;
+            const resultBox = document.getElementById('ask-result');
+            resultBox.innerHTML = "Processing...";
+            
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `question=${encodeURIComponent(question)}`
+                });
+                const result = await response.json();
+                
+                if (result.generated) {
+                    resultBox.innerHTML = result.generated;
+                } else if (result.error) {
+                    resultBox.innerHTML = `Error: ${result.error}`;
+                } else {
+                    resultBox.innerHTML = "No answer found or unexpected response format.";
+                    console.log("Unexpected response format:", result);
+                }
+            } catch (error) {
+                resultBox.innerHTML = `Error: ${error.message}`;
+                console.error(error);
+            }
+        });
+    </script>
+</body>
+</html>
